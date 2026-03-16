@@ -1,0 +1,26 @@
+{
+  "name": "agentic-crawler",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "Agentic FAQ scraper — extracts Q&A pairs from any website using Playwright + LLM",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "dev": "tsx --watch src/index.ts",
+    "build": "tsc",
+    "postinstall": "npx crawlee install-playwright-browsers"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.36.0",
+    "cheerio": "^1.0.0",
+    "crawlee": "^3.0.0",
+    "dotenv": "^16.0.0",
+    "openai": "^4.0.0",
+    "playwright": "*",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "skills": {
+    "agent-browser": {
+      "source": "inference-sh/skills",
+      "sourceType": "github",
+      "computedHash": "d469002992b67625916f26815109d3391a24e95185720271f3b84ede21089ac6"
+    },
+    "playwright-best-practices": {
+      "source": "currents-dev/playwright-best-practices-skill",
+      "sourceType": "github",
+      "computedHash": "a3a25fef9f51c15bb6c7c302ffb009a9040532bf51d999c648fcceaa9ab08841"
+    },
+    "playwright-explore-website": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "ac361696198c2db22a0f9d3aa456d2f83c9f0110bf00d6ca529f735395fe3a5c"
+    }
+  }
+}
