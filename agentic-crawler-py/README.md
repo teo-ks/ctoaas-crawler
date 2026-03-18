@@ -1,6 +1,6 @@
 # agentic-crawler-py
 
-Python rewrite of the agentic FAQ crawler, with an added **general content extraction** mode for RAG pipelines.
+An agentic web crawler that extracts structured content from websites. Supports **FAQ extraction** for Q&A pairs and **general content extraction** for RAG pipelines, with JSON or Markdown output.
 
 ## Features
 
@@ -16,13 +16,14 @@ Python rewrite of the agentic FAQ crawler, with an added **general content extra
 ```bash
 cd agentic-crawler-py
 
-# Install with pip (or uv)
-pip install -e .
+# Create virtualenv and install dependencies
+uv venv .venv
+uv pip install -e .
 
 # Install Playwright browser
-playwright install chromium
+.venv/bin/playwright install chromium
 
-# Copy and fill in your API key
+# Copy and fill in your credentials
 cp .env.example .env
 ```
 
@@ -56,11 +57,11 @@ python -m src.main https://example.com --max-requests 50
 | Variable | Description |
 |----------|-------------|
 | `ANTHROPIC_API_KEY` | Anthropic API key (used when `LLM_BASE_URL` is not set) |
-| `LLM_BASE_URL` | Base URL for OpenAI-compatible endpoint |
+| `LLM_BASE_URL` | Base URL for OpenAI-compatible endpoint (e.g. `https://openrouter.ai/api/v1`) |
 | `LLM_API_KEY` | API key for OpenAI-compatible endpoint |
-| `LLM_MODEL` | Primary model (default: `claude-haiku-4-5-20251001`) |
-| `LLM_FALLBACK_MODEL` | Fallback model (default: `claude-sonnet-4-6`) |
-| `APIFY_PROXY_PASSWORD` | Apify proxy password for Cloudflare-protected sites |
+| `LLM_MODEL` | Primary model (default: `google/gemini-3-flash-preview`) |
+| `LLM_FALLBACK_MODEL` | Fallback model (default: `anthropic/claude-haiku-4.5`) |
+| `PROXY_URL` | Optional HTTP/HTTPS proxy for Cloudflare-protected sites (e.g. `http://user:pass@proxy.example.com:8080`) |
 
 ## Project structure
 
@@ -75,10 +76,10 @@ src/
 │   ├── faq.py                # Pydantic: FaqPair, FaqOutput
 │   └── general.py            # Pydantic: ContentSection, PageContent, GeneralOutput
 ├── agents/
-│   ├── base.py               # BaseExtractionAgent ABC
-│   ├── faq_agent.py          # FaqExtractionAgent
-│   ├── general_agent.py      # GeneralExtractionAgent
-│   └── discovery_agent.py    # Link discovery helpers
+│   ├── base_extraction_agent.py   # BaseExtractionAgent ABC
+│   ├── faq_extraction_agent.py    # FaqExtractionAgent
+│   ├── general_extraction_agent.py # GeneralExtractionAgent
+│   └── discovery_agent.py         # Link discovery helpers
 └── crawler/
     └── crawler.py            # PlaywrightCrawler orchestrator
 ```
