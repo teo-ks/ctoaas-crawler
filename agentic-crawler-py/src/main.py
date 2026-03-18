@@ -46,6 +46,12 @@ def build_parser() -> argparse.ArgumentParser:
         default="./output",
         help="Directory to write output files (default: ./output)",
     )
+    parser.add_argument(
+        "--save",
+        action="store_true",
+        default=False,
+        help="Write output to disk (default: off)",
+    )
     return parser
 
 
@@ -83,6 +89,7 @@ async def main() -> None:
         llm_client=llm_client,
         cost_tracker=cost_tracker,
         proxy_url=os.getenv("PROXY_URL"),
+        save_output=args.save,
     )
 
     cost_tracker.summary()

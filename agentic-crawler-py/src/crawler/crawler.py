@@ -34,6 +34,7 @@ async def run_crawler(
     llm_client: LLMClient | None = None,
     cost_tracker: CostTracker | None = None,
     proxy_url: str | None = None,
+    save_output: bool = False,
 ) -> FaqOutput | GeneralOutput:
     if llm_client is None:
         from ..llm.client import create_llm_client
@@ -184,7 +185,8 @@ async def run_crawler(
         )
         print(f"\n💾 Crawl complete — {len(all_pages)} pages")
 
-    write_output(result, fmt=fmt, output_dir=output_dir)
+    if save_output:
+        write_output(result, fmt=fmt, output_dir=output_dir)
     return result
 
 

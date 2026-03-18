@@ -30,22 +30,27 @@ cp .env.example .env
 ## Usage
 
 ```bash
-# FAQ extraction — JSON output (default)
-python -m src.main https://ask.gov.sg/ecda
+# FAQ extraction — JSON output, save to disk
+python -m src.main https://ask.gov.sg/ecda --save
 
 # FAQ extraction — Markdown output
-python -m src.main https://ask.gov.sg/ecda --format md
+python -m src.main https://ask.gov.sg/ecda --format md --save
 
 # General content extraction — Markdown (RAG-optimised)
-python -m src.main https://ask.gov.sg/ecda --mode general --format md
+python -m src.main https://ask.gov.sg/ecda --mode general --format md --save
+
+# Return result only (no disk write — default)
+python -m src.main https://ask.gov.sg/ecda
 
 # Limit crawl depth
-python -m src.main https://example.com --max-requests 50
+python -m src.main https://example.com --max-requests 50 --save
 ```
 
 ## Output
 
-| Mode | Format | Output |
+`run_crawler()` always returns a structured Pydantic object (`FaqOutput` or `GeneralOutput`). Disk writes are opt-in — pass `--save` when running locally. When deployed as a service, omit `--save` and consume the return value directly.
+
+| Mode | Format | File (with `--save`) |
 |------|--------|--------|
 | faq | json | `output/<domain>.json` |
 | faq | md | `output/<domain>.md` |
