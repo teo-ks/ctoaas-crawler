@@ -1,58 +1,73 @@
-"""Writes extracted data to JSON or Markdown files."""
+"""Writes or renders extracted data as JSON or Markdown."""
 
 from __future__ import annotations
 
-import json
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 
 from ..schemas.faq import FaqOutput
 from ..schemas.general import GeneralOutput
+
+
+# ---------------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------------
+
+def render_output(
+    data: FaqOutput | GeneralOutput,
+    fmt: str,  # "json" | "md"
+) -> str | dict[str, str]:
+    """Render data to a string (or dict of filename → string for general+md).
+
+    Returns:
+        str   — for fmt=json (JSON string) or fmt=md with FaqOutput
+        dict  — for fmt=md with GeneralOutput: {filename: markdown_content}
+    """
+    if fmt == "md":
+        if isinstance(data, FaqOutput):
+            return _render_faq_markdown(data)
+        return _render_general_markdown(data)
+    return data.model_dump_json(indent=2)
 
 
 def write_output(
     data: FaqOutput | GeneralOutput,
     fmt: str,  # "json" | "md"
     output_dir: str = "./output",
+    rendered: str | dict[str, str] | None = None,
 ) -> None:
-    """Dispatch to JSON or Markdown writer based on fmt."""
+    """Write pre-rendered (or freshly rendered) output to disk."""
     os.makedirs(output_dir, exist_ok=True)
-    if fmt == "md":
-        _write_markdown(data, output_dir)
+    if rendered is None:
+        rendered = render_output(data, fmt)
+
+    if fmt == "md" and isinstance(rendered, dict):
+        # general+md: one file per page
+        domain_dir = Path(output_dir) / data.domain.replace(".", "_")
+        domain_dir.mkdir(parents=True, exist_ok=True)
+        for filename, content in rendered.items():
+            (domain_dir / filename).write_text(content, encoding="utf-8")
+        print(f"[output] Saved {len(rendered)} Markdown pages → {domain_dir}/")
+    elif fmt == "md":
+        safe_domain = data.domain.replace(".", "_")
+        path = Path(output_dir) / f"{safe_domain}.md"
+        path.write_text(rendered, encoding="utf-8")  # type: ignore[arg-type]
+        print(f"[output] Saved Markdown → {path}")
     else:
-        _write_json(data, output_dir)
+        safe_domain = data.domain.replace(".", "_")
+        path = Path(output_dir) / f"{safe_domain}.json"
+        path.write_text(rendered, encoding="utf-8")  # type: ignore[arg-type]
+        print(f"[output] Saved JSON → {path}")
 
 
 # ---------------------------------------------------------------------------
-# JSON output
+# Renderers — return strings, never touch disk
 # ---------------------------------------------------------------------------
 
-def _write_json(data: FaqOutput | GeneralOutput, output_dir: str) -> None:
-    safe_domain = data.domain.replace(".", "_")
-    path = Path(output_dir) / f"{safe_domain}.json"
-    path.write_text(data.model_dump_json(indent=2), encoding="utf-8")
-    print(f"[output] Saved JSON → {path}")
-
-
-# ---------------------------------------------------------------------------
-# Markdown output
-# ---------------------------------------------------------------------------
-
-def _write_markdown(data: FaqOutput | GeneralOutput, output_dir: str) -> None:
-    if isinstance(data, FaqOutput):
-        _write_faq_markdown(data, output_dir)
-    else:
-        _write_general_markdown(data, output_dir)
-
-
-def _write_faq_markdown(data: FaqOutput, output_dir: str) -> None:
-    """Single .md file, sections per category, each Q&A as ### Question / Answer."""
-    safe_domain = data.domain.replace(".", "_")
-    path = Path(output_dir) / f"{safe_domain}.md"
-
+def _render_faq_markdown(data: FaqOutput) -> str:
     lines: list[str] = [f"# FAQ — {data.domain}\n"]
 
-    # Group by category
     by_category: dict[str, list] = {}
     for pair in data.pairs:
         cat = pair.category or "General"
@@ -64,21 +79,16 @@ def _write_faq_markdown(data: FaqOutput, output_dir: str) -> None:
             lines.append(f"### {pair.question}\n")
             lines.append(f"{pair.answer}\n")
 
-    path.write_text("\n".join(lines), encoding="utf-8")
-    print(f"[output] Saved Markdown → {path}")
+    return "\n".join(lines)
 
 
-def _write_general_markdown(data: GeneralOutput, output_dir: str) -> None:
-    """One .md file per page under output/<domain>/, RAG-optimised with YAML front matter."""
-    domain_dir = Path(output_dir) / data.domain.replace(".", "_")
-    domain_dir.mkdir(parents=True, exist_ok=True)
+def _render_general_markdown(data: GeneralOutput) -> dict[str, str]:
+    """Returns {filename: markdown_content} for each page."""
+    pages: dict[str, str] = {}
 
     for i, page in enumerate(data.pages):
-        # Build a safe filename from the URL path
-        from urllib.parse import urlparse
         url_path = urlparse(page.url).path.strip("/").replace("/", "_") or "index"
-        safe_name = f"{i:04d}_{url_path[:80]}.md"
-        path = domain_dir / safe_name
+        filename = f"{i:04d}_{url_path[:80]}.md"
 
         lines: list[str] = [
             "---",
@@ -91,13 +101,12 @@ def _write_general_markdown(data: GeneralOutput, output_dir: str) -> None:
             f"# {page.title}",
             "",
         ]
-
         for section in page.sections:
             lines.append(f"## {section.heading}")
             lines.append("")
             lines.append(section.content)
             lines.append("")
 
-        path.write_text("\n".join(lines), encoding="utf-8")
+        pages[filename] = "\n".join(lines)
 
-    print(f"[output] Saved {len(data.pages)} Markdown pages → {domain_dir}/")
+    return pages

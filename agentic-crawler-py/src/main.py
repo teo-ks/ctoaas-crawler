@@ -80,7 +80,7 @@ async def main() -> None:
     llm_client = create_llm_client()
     cost_tracker = CostTracker()
 
-    result = await run_crawler(
+    await run_crawler(
         start_url=args.url,
         mode=args.mode,
         fmt=args.fmt,
@@ -93,11 +93,6 @@ async def main() -> None:
     )
 
     cost_tracker.summary()
-
-    if args.mode == "faq":
-        print(f"\n✅ Done — extracted {result.total_pairs} FAQ pairs")  # type: ignore[union-attr]
-    else:
-        print(f"\n✅ Done — extracted {result.total_pages} pages")  # type: ignore[union-attr]
 
 
 if __name__ == "__main__":

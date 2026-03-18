@@ -15,7 +15,7 @@ from ..agents.general_extraction_agent import GeneralExtractionAgent
 from ..llm.client import CostTracker, LLMClient
 from ..schemas.faq import FaqOutput, FaqPair
 from ..schemas.general import GeneralOutput, PageContent
-from ..utils.output_writer import write_output
+from ..utils.output_writer import render_output, write_output
 
 # Pagination buttons — "View more", "Load more", "Show all", "See more"
 PAGINATION_BUTTON_RE = re.compile(r"^(view|load|show|see)\s+(more|all)$", re.IGNORECASE)
@@ -35,7 +35,7 @@ async def run_crawler(
     cost_tracker: CostTracker | None = None,
     proxy_url: str | None = None,
     save_output: bool = False,
-) -> FaqOutput | GeneralOutput:
+) -> str | dict[str, str]:
     if llm_client is None:
         from ..llm.client import create_llm_client
         llm_client = create_llm_client()
@@ -185,9 +185,10 @@ async def run_crawler(
         )
         print(f"\n💾 Crawl complete — {len(all_pages)} pages")
 
+    rendered = render_output(result, fmt=fmt)
     if save_output:
-        write_output(result, fmt=fmt, output_dir=output_dir)
-    return result
+        write_output(result, fmt=fmt, output_dir=output_dir, rendered=rendered)
+    return rendered
 
 
 # ---------------------------------------------------------------------------
