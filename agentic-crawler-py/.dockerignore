@@ -1,0 +1,22 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Environment — never bake secrets into the image
+.env
+
+# Crawler runtime directories
+output/
+storage/
+.crawlee/
+
+# Dev/repo
+.git/
+.gitignore
+tests/
+scripts/
+*.log

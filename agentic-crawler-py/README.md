@@ -14,41 +14,37 @@ An agentic web crawler that extracts structured content from websites. Supports 
 ## Setup
 
 ```bash
-cd agentic-crawler-py
-
-# Create virtualenv and install dependencies
-uv venv .venv
-uv pip install -e .
-
-# Install Playwright browser
-.venv/bin/playwright install chromium
-
-# Copy and fill in your credentials
-cp .env.example .env
+cp .env.example .env  # fill in your credentials
+docker build -t crawler .
 ```
 
 ## Usage
 
+Defaults: `--mode faq`, `--format json`. Both flags are optional — omit them to use the defaults.
+
 ```bash
-# FAQ extraction — JSON output, save to disk
-python -m src.main https://ask.gov.sg/ecda --save
+# FAQ extraction — JSON, save to disk (--mode faq --format json implied)
+docker run --rm --env-file .env -v $(pwd)/output:/app/output crawler python -m src.main https://ask.gov.sg/ecda --save
 
-# FAQ extraction — Markdown output
-python -m src.main https://ask.gov.sg/ecda --format md --save
+# General content extraction — Markdown
+docker run --rm --env-file .env -v $(pwd)/output:/app/output crawler python -m src.main https://ask.gov.sg/ecda --format md --mode general --save
 
-# General content extraction — Markdown (RAG-optimised)
-python -m src.main https://ask.gov.sg/ecda --mode general --format md --save
-
-# Return result only (no disk write — default)
-python -m src.main https://ask.gov.sg/ecda
+# No disk write — output returned via stdout (---RESULT--- marker)
+docker run --rm --env-file .env crawler python -m src.main https://ask.gov.sg/ecda
 
 # Limit crawl depth
-python -m src.main https://example.com --max-requests 50 --save
+docker run --rm --env-file .env -v $(pwd)/output:/app/output crawler python -m src.main https://example.com --max-requests 5 --save
+
+# Smoke-test the container
+python scripts/test_container.py
+python scripts/test_container.py --url https://example.com --mode general
 ```
+
+The smoke test runs a short crawl (`--max-requests 5`), captures the JSON from the container's stdout, and validates at least one result was extracted.
 
 ## Output
 
-`run_crawler()` always returns a structured Pydantic object (`FaqOutput` or `GeneralOutput`). Disk writes are opt-in — pass `--save` when running locally. When deployed as a service, omit `--save` and consume the return value directly.
+`run_crawler()` always returns the rendered output (`str` for JSON/FAQ Markdown, `dict[filename, str]` for general Markdown). Disk writes are opt-in — pass `--save` to also write to disk. When deployed as a service, omit `--save` and consume the return value directly.
 
 | Mode | Format | File (with `--save`) |
 |------|--------|--------|

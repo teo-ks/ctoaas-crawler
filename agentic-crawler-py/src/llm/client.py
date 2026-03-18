@@ -17,26 +17,9 @@ FALLBACK_MODEL: str = os.getenv("LLM_FALLBACK_MODEL", "claude-sonnet-4-6")
 
 # Per-1M-token pricing (input / output)
 PRICING_PER_1M: dict[str, dict[str, float]] = {
-    "claude-haiku-4-5-20251001":  {"input": 0.80,  "output": 4.00},
-    "claude-haiku-4-5":           {"input": 0.80,  "output": 4.00},
-    "claude-sonnet-4-6":          {"input": 3.00,  "output": 15.00},
-    "claude-opus-4-6":            {"input": 15.00, "output": 75.00},
-    # AWS Bedrock (via LiteLLM)
-    "bedrock-claude-haiku-3":     {"input": 0.25,  "output": 1.25},
-    "bedrock-claude-haiku-3-5":   {"input": 0.80,  "output": 4.00},
-    "bedrock-claude-sonnet-4":    {"input": 3.00,  "output": 15.00},
-    "bedrock-claude-sonnet-4-5":  {"input": 3.00,  "output": 15.00},
-    # Google (via LiteLLM)
-    "google-gemini-3-flash":      {"input": 0.15,  "output": 0.60},
-    "gemini/gemini-2.0-flash":    {"input": 0.15,  "output": 0.60},
     # OpenRouter model IDs
-    "google/gemini-2.0-flash-001":     {"input": 0.10,  "output": 0.40},
-    "google/gemini-flash-1.5":         {"input": 0.075, "output": 0.30},
-    "anthropic/claude-haiku-4.5":      {"input": 0.80,  "output": 4.00},
-    "anthropic/claude-haiku-4-5":      {"input": 0.80,  "output": 4.00},
-    "anthropic/claude-3-haiku":        {"input": 0.25,  "output": 1.25},
-    "anthropic/claude-3.5-haiku":      {"input": 0.80,  "output": 4.00},
-    "anthropic/claude-sonnet-4-5":     {"input": 3.00,  "output": 15.00},
+    "google/gemini-3-flash-preview":   {"input": 0.50,  "output": 3.00},
+    "anthropic/claude-haiku-4.5":      {"input": 1.00,  "output": 5.00},
 }
 
 

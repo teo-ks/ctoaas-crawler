@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 from datetime import datetime, timedelta, timezone
 from urllib.parse import urlparse
@@ -75,6 +76,12 @@ async def run_crawler(
     if playwright_proxy:
         browser_context_options["proxy"] = playwright_proxy
 
+    # Chromium inside Docker has no user-namespace sandbox — must disable it.
+    # Detected via DOCKER_ENV=1 set in the Dockerfile.
+    browser_launch_options: dict = {}
+    if os.getenv("DOCKER_ENV"):
+        browser_launch_options["args"] = ["--no-sandbox", "--disable-setuid-sandbox"]
+
     crawler = PlaywrightCrawler(
         max_request_retries=5,
         max_requests_per_crawl=max_requests,
@@ -87,6 +94,7 @@ async def run_crawler(
             desired_concurrency=2,
             max_tasks_per_minute=30,
         ),
+        browser_launch_options=browser_launch_options or None,
         browser_new_context_options=browser_context_options,
     )
 

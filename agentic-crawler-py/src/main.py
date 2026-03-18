@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import json
 import os
 import sys
 
@@ -80,7 +81,7 @@ async def main() -> None:
     llm_client = create_llm_client()
     cost_tracker = CostTracker()
 
-    await run_crawler(
+    rendered = await run_crawler(
         start_url=args.url,
         mode=args.mode,
         fmt=args.fmt,
@@ -93,6 +94,11 @@ async def main() -> None:
     )
 
     cost_tracker.summary()
+
+    # Print rendered output after a marker so callers can parse it unambiguously
+    # from the surrounding progress logs.
+    output_str = rendered if isinstance(rendered, str) else json.dumps(rendered)
+    sys.stdout.write(f"\n---RESULT---\n{output_str}\n")
 
 
 if __name__ == "__main__":
