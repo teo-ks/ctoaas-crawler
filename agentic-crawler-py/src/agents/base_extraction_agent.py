@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import re
 from abc import ABC, abstractmethod
 from typing import Any
@@ -42,9 +41,7 @@ class BaseExtractionAgent(ABC):
         content = cleaned
         tokens = estimate_tokens(cleaned)
         if tokens > MAX_TOKEN_BUDGET:
-            print(
-                f"[extraction] HTML ~{tokens} est. tokens — truncating to budget for {url}"
-            )
+            print(f"[extraction] HTML ~{tokens} est. tokens — truncating to budget for {url}")
             content = cleaned[: MAX_TOKEN_BUDGET * 4]
 
         messages = [

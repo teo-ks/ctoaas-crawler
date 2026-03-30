@@ -14,6 +14,7 @@ from ..schemas.general import GeneralOutput
 # Public API
 # ---------------------------------------------------------------------------
 
+
 def render_output(
     data: FaqOutput | GeneralOutput,
     fmt: str,  # "json" | "md"
@@ -64,6 +65,7 @@ def write_output(
 # ---------------------------------------------------------------------------
 # Renderers — return strings, never touch disk
 # ---------------------------------------------------------------------------
+
 
 def _render_faq_markdown(data: FaqOutput) -> str:
     lines: list[str] = [f"# FAQ — {data.domain}\n"]

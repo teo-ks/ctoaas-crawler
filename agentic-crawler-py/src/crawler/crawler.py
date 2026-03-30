@@ -10,7 +10,11 @@ from urllib.parse import urlparse
 from crawlee._autoscaling.autoscaled_pool import ConcurrencySettings
 from crawlee.crawlers import PlaywrightCrawler, PlaywrightCrawlingContext
 
-from ..agents.discovery_agent import discover_faq_links, discover_general_links, extract_faq_path_links
+from ..agents.discovery_agent import (
+    discover_faq_links,
+    discover_general_links,
+    extract_faq_path_links,
+)
 from ..agents.faq_extraction_agent import FaqExtractionAgent
 from ..agents.general_extraction_agent import GeneralExtractionAgent
 from ..llm.client import CostTracker, LLMClient
@@ -28,8 +32,8 @@ NAV_SELECTOR = "nav, header, footer, [role='navigation'], [role='banner'], [role
 
 async def run_crawler(
     start_url: str,
-    mode: str = "faq",       # "faq" | "general"
-    fmt: str = "json",       # "json" | "md"
+    mode: str = "faq",  # "faq" | "general"
+    fmt: str = "json",  # "json" | "md"
     max_requests: int = 500,
     output_dir: str = "./output",
     llm_client: LLMClient | None = None,
@@ -39,6 +43,7 @@ async def run_crawler(
 ) -> str | dict[str, str]:
     if llm_client is None:
         from ..llm.client import create_llm_client
+
         llm_client = create_llm_client()
     if cost_tracker is None:
         cost_tracker = CostTracker()
@@ -202,6 +207,7 @@ async def run_crawler(
 # ---------------------------------------------------------------------------
 # Page interaction helpers
 # ---------------------------------------------------------------------------
+
 
 async def _expand_all(page, log) -> None:
     await _click_pagination_buttons(page, log)

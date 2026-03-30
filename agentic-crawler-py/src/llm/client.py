@@ -5,8 +5,7 @@ from __future__ import annotations
 import os
 import sys
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
 
 # ---------------------------------------------------------------------------
 # Models and pricing
@@ -18,8 +17,8 @@ FALLBACK_MODEL: str = os.getenv("LLM_FALLBACK_MODEL", "claude-sonnet-4-6")
 # Per-1M-token pricing (input / output)
 PRICING_PER_1M: dict[str, dict[str, float]] = {
     # OpenRouter model IDs
-    "google/gemini-3-flash-preview":   {"input": 0.50,  "output": 3.00},
-    "anthropic/claude-haiku-4.5":      {"input": 1.00,  "output": 5.00},
+    "google/gemini-3-flash-preview": {"input": 0.50, "output": 3.00},
+    "anthropic/claude-haiku-4.5": {"input": 1.00, "output": 5.00},
 }
 
 
@@ -78,10 +77,9 @@ class CostTracker:
         pricing = PRICING_PER_1M.get(model)
         total_cost = None
         if pricing:
-            total_cost = (
-                (self._total_input / 1_000_000) * pricing["input"]
-                + (self._total_output / 1_000_000) * pricing["output"]
-            )
+            total_cost = (self._total_input / 1_000_000) * pricing["input"] + (
+                self._total_output / 1_000_000
+            ) * pricing["output"]
         cost_str = f"${total_cost:.4f}" if total_cost is not None else "unknown pricing"
         sys.stderr.write(
             f"\n[tokens] TOTAL | {self._call_count} calls"
@@ -117,7 +115,6 @@ class AnthropicClient(LLMClient):
         )
 
     async def complete(self, messages: list[LLMMessage], model: str) -> LLMResponse:
-        import anthropic  # type: ignore
 
         response = await self._client.messages.create(
             model=model,

@@ -12,8 +12,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from .llm.client import CostTracker, DEFAULT_MODEL, FALLBACK_MODEL, create_llm_client
-from .crawler.crawler import run_crawler
+from .llm.client import CostTracker, DEFAULT_MODEL, FALLBACK_MODEL, create_llm_client  # noqa: E402
+from .crawler.crawler import run_crawler  # noqa: E402
 
 
 def build_parser() -> argparse.ArgumentParser:

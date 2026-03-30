@@ -37,14 +37,22 @@ def main() -> None:
 
     result = subprocess.run(
         [
-            "docker", "run", "--rm",
-            "--env-file", ".env",
+            "docker",
+            "run",
+            "--rm",
+            "--env-file",
+            ".env",
             args.image,
-            "python", "-m", "src.main",
+            "python",
+            "-m",
+            "src.main",
             args.url,
-            "--mode", args.mode,
-            "--format", "json",
-            "--max-requests", str(args.max_requests),
+            "--mode",
+            args.mode,
+            "--format",
+            "json",
+            "--max-requests",
+            str(args.max_requests),
             # No --save: output returned via ---RESULT--- marker
         ],
         capture_output=True,

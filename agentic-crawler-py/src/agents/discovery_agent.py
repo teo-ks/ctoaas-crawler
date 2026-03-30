@@ -40,17 +40,15 @@ async def discover_faq_links(
     page_hostname = urlparse(page_url).hostname
     all_links = _extract_links(page_url, raw_html)
 
-    same_domain = [
-        lnk for lnk in all_links
-        if _safe_hostname(lnk["href"]) == page_hostname
-    ]
+    same_domain = [lnk for lnk in all_links if _safe_hostname(lnk["href"]) == page_hostname]
 
     if not same_domain:
         return []
 
     # Pass 1: heuristic (no LLM cost)
     heuristic = [
-        lnk for lnk in same_domain
+        lnk
+        for lnk in same_domain
         if FAQ_KEYWORDS.search(lnk["href"]) or FAQ_KEYWORDS.search(lnk["text"])
     ]
     if heuristic:
@@ -58,8 +56,7 @@ async def discover_faq_links(
 
     # Pass 2: LLM discovery
     link_list = "\n".join(
-        f"{lnk['text'] or '(no text)'} → {lnk['href']}"
-        for lnk in same_domain[:100]
+        f"{lnk['text'] or '(no text)'} → {lnk['href']}" for lnk in same_domain[:100]
     )
     messages = [
         LLMMessage(
@@ -79,7 +76,8 @@ async def discover_faq_links(
             return []
 
         return [
-            u for u in parsed["faqUrls"]
+            u
+            for u in parsed["faqUrls"]
             if isinstance(u, str) and _safe_hostname(u) == page_hostname
         ]
     except Exception as e:
@@ -94,10 +92,11 @@ async def discover_general_links(
     """Return all same-domain links (used by general mode)."""
     page_hostname = urlparse(page_url).hostname
     all_links = _extract_links(page_url, raw_html)
-    return list(dict.fromkeys(
-        lnk["href"] for lnk in all_links
-        if _safe_hostname(lnk["href"]) == page_hostname
-    ))
+    return list(
+        dict.fromkeys(
+            lnk["href"] for lnk in all_links if _safe_hostname(lnk["href"]) == page_hostname
+        )
+    )
 
 
 FAQ_PATH_PATTERNS = ("/questions/", "/faq", "/help", "topic=")
@@ -125,6 +124,7 @@ def extract_faq_path_links(page_url: str, raw_html: str) -> list[str]:
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _extract_links(page_url: str, html: str) -> list[dict[str, str]]:
     soup = BeautifulSoup(html, "lxml")
